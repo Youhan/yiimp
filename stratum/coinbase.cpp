@@ -297,15 +297,40 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		char script_payee[128] = { 0 };
 		char payees[4]; // addresses count
 		int npayees = (templ->has_segwit_txs) ? 2 : 1;
-		bool masternode_enabled = json_get_bool(json_result, "masternode_payments_enforced");
+		bool masternode_enabled;
+		if (coind->name != "Dynamic") {
+			masternode_enabled = json_get_bool(json_result, "masternode_payments_enforced");
+		}
+		else {
+			masternode_enabled = json_get_bool(json_result, "dynode_payments_enforced");
+		}
+
 		bool superblocks_enabled = json_get_bool(json_result, "superblocks_enabled");
 		json_value* superblock = json_get_array(json_result, "superblock");
-		json_value* masternode = json_get_object(json_result, "masternode");
-		if(!masternode && json_get_bool(json_result, "masternode_payments")) {
-			coind->oldmasternodes = true;
-			debuglog("%s is using old masternodes rpc keys\n", coind->symbol);
-			return;
+
+		json_value* masternode;
+		if (coind->name != "Dynamic") {
+			masternode = json_get_object(json_result, "masternode");
 		}
+		else {
+			masternode = json_get_object(json_result, "dynode");
+		}
+
+		if (coind->name != "Dynamic") {
+			if(!masternode && json_get_bool(json_result, "masternode_payments")) {
+				coind->oldmasternodes = true;
+				debuglog("%s is using old masternodes rpc keys\n", coind->symbol);
+				return;
+			}
+		}
+		else {
+			if(!masternode && json_get_bool(json_result, "dynode_payments")) {
+				coind->oldmasternodes = true;
+				debuglog("%s is using old dynode rpc keys\n", coind->symbol);
+				return;
+			}
+		}
+		
 		if(coind->charity_percent) {
             		char charity_payee[256] = { 0 };
             		const char *payee = json_get_string(json_result, "payee");
@@ -338,7 +363,13 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 			}
 		}
 		if (masternode_enabled && masternode) {
-			bool started = json_get_bool(json_result, "masternode_payments_started");
+			bool started;
+			if (coind->name != "Dynamic") {
+				started = json_get_bool(json_result, "masternode_payments_started");
+			}
+			else {
+				started = json_get_bool(json_result, "dynode_payments_started");
+			}
 			const char *payee = json_get_string(masternode, "payee");
 			json_int_t amount = json_get_int(masternode, "amount");
 			if (payee && amount && started) {
