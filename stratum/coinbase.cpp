@@ -125,12 +125,11 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	else if(strcmp(coind->symbol, "DYN") == 0)
 	{
 		char dynode_payee[1024] = "";
-		strcpy(dynode_payee, json_get_string(json_result, "payee"));
+		json_value* dynode;
+		dynode = json_get_object(json_result, "dynode");
+		strcpy(dynode_payee, json_get_string(dynode, "payee"));
 
-		templ->value = json_get_int(json_result, "coinbasevalue");
-		available = templ->value;
-
-		json_int_t dynode_amount = json_get_int(json_result, "amount");
+		json_int_t dynode_amount = json_get_int(dynode, "amount");
 
 		strcat(templ->coinb2, "02");
 		available -= dynode_amount;
