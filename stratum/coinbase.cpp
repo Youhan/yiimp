@@ -165,6 +165,15 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 			started = json_get_bool(json_result, "dynode_payments_started");
 			const char *payee = json_get_string(dynode, "payee");
 			json_int_t amount = json_get_int(dynode, "amount");
+			if (!payee)
+				debuglog("coinbase_create failed to get Dynode payee\n");
+
+			if (!amount)
+				debuglog("coinbase_create failed to get Dynode amount\n");
+
+			if (!started)
+				debuglog("coinbase_create failed to get Dynode started\n");
+			
 			if (payee && amount && started) {
 				npayees++;
 				debuglog("coinbase_create Dynode amount = %u\n", amount);
