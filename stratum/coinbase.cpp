@@ -125,6 +125,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	}
 	else if(strcmp(coind->symbol, "DYN") == 0)
 	{
+		debuglog("coinbase_create in DYN else if\n");
 		char script_dests[2048] = { 0 };
 		char script_payee[128] = { 0 };
 		char payees[4]; // addresses count
@@ -133,29 +134,16 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 		dynode_enabled = json_get_bool(json_result, "dynode_payments_enforced");
 		bool superblocks_enabled = json_get_bool(json_result, "superblocks_enabled");
 		json_value* superblock = json_get_array(json_result, "superblock");
-
+		debuglog("coinbase_create in DYN after superblock\n");
 		json_value* dynode;
 		dynode = json_get_object(json_result, "dynode");
+		debuglog("coinbase_create in DYN after get dynode\n");
 		if(!dynode && json_get_bool(json_result, "dynode_payments")) {
 			coind->oldmasternodes = true;
 			debuglog("%s is using old dynodes rpc keys\n", coind->symbol);
 			return;
 		}
 		
-		if(coind->charity_percent) {
-            		char charity_payee[256] = { 0 };
-            		const char *payee = json_get_string(json_result, "payee");
-            		if (payee) snprintf(charity_payee, 255, "%s", payee);
-            		else sprintf(charity_payee, "%s", coind->charity_address);
-            		if (strlen(charity_payee) == 0)
-                		stratumlog("ERROR %s has no charity_address set!\n", coind->name);
-            		json_int_t charity_amount = (available * coind->charity_percent) / 100;
-            		npayees++;
-            		available -= charity_amount;
-            		coind->charity_amount = charity_amount;
-            		base58_decode(charity_payee, script_payee);
-           		job_pack_tx(coind, script_dests, charity_amount, script_payee);
-        	}
 		if(superblocks_enabled && superblock) {
 			for(int i = 0; i < superblock->u.array.length; i++) {
 				const char *payee = json_get_string(superblock->u.array.values[i], "payee");
