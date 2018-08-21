@@ -82,7 +82,7 @@ void coinbase_aux(YAAMP_JOB_TEMPLATE *templ, char *aux_script)
 
 void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *json_result)
 {
-	debuglog("coinbase_create symbol = %s\n", coind->symbol);
+	//debuglog("coinbase_create symbol = %s\n", coind->symbol);
 	char eheight[32], etime[32];
 	char entime[32] = { 0 };
 	char commitment[128] = { 0 };
@@ -125,7 +125,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	}
 	else if(strcmp(coind->symbol, "DYN") == 0)
 	{
-		debuglog("coinbase_create in Dynamic\n");
+		//debuglog("coinbase_create in Dynamic\n");
 		char script_dests[2048] = { 0 };
 		char script_payee[128] = { 0 };
 		char payees[4]; // addresses count
@@ -141,7 +141,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 			debuglog("%s is using old dynodes rpc keys\n", coind->symbol);
 			return;
 		}
-		
+
 		if(superblocks_enabled && superblock) {
 			for(int i = 0; i < superblock->u.array.length; i++) {
 				const char *payee = json_get_string(superblock->u.array.values[i], "payee");
@@ -160,7 +160,7 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 			}
 		}
 		if (dynode_enabled && dynode) {
-			debuglog("coinbase_create Dynode enabled\n");
+			//debuglog("coinbase_create Dynode enabled\n");
 			bool started;
 			started = json_get_bool(json_result, "dynode_payments_started");
 			const char *payee = json_get_string(dynode, "payee");
@@ -173,10 +173,10 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 
 			if (!started)
 				debuglog("coinbase_create failed to get Dynode started\n");
-			
+
 			if (payee && amount && started) {
 				npayees++;
-				debuglog("coinbase_create Dynode amount = %u\n", amount);
+				//debuglog("coinbase_create Dynode amount = %u\n", amount);
 				available -= amount;
 				base58_decode(payee, script_payee);
 				job_pack_tx(coind, script_dests, amount, script_payee);
