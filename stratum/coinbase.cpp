@@ -124,6 +124,9 @@ void coinbase_create(YAAMP_COIND *coind, YAAMP_JOB_TEMPLATE *templ, json_value *
 	}
 	else if(strcmp(coind->symbol, "DYN") == 0)
 	{
+		if (g_debuglog_hash) {
+			debuglog("coinbase_create with debuglog_hash on.\n");
+		}
 		char script_dests[2048] = { 0 };
 		char script_payee[128] = { 0 };
 		char payees[3];
